@@ -1,0 +1,31 @@
+
+name: Run Tests on PR
+on:
+  pull_request:
+    branches:
+      - main
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      redis:
+        image: redis:alpine
+        ports:
+          - 6379:6379
+    strategy:
+      matrix:
+        node-version: [16.x, 18.x]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Set up Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: Install dependencies
+        run: npm install
+      - name: Run tests
+        env:
+          REDIS_HOST: localhost
+          REDIS_PORT: 6379
+        run: npm test
