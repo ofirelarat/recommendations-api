@@ -1,9 +1,9 @@
-import { ObjectWithValues, IDataModel, IdType, ValueType, ValueToIdsMap, ObjectsMap } from './types';
+import { ObjectWithValues, IDataModel, IdType, ValueType, Recommendation } from './types';
 
 export class ClusteringService {
   private dataModel: IDataModel;
 
-  constructor(dataModel: IDataModel) {
+  constructor(dataModel: IDataModel, private topLimit: number = 10) {
     this.dataModel = dataModel;
   }
 
@@ -13,9 +13,23 @@ export class ClusteringService {
    * Efficiency:
    * - Time Complexity: O(m) where m is the number of values in the new object.
    * - Space Complexity: O(n + m) where n is the number of objects and m is the number of values.
+   * 
+   * @param {ObjectWithValues} newObject - The new object to add.
+   * @returns {Promise<void>}
    */
   async addObject(newObject: ObjectWithValues): Promise<void> {
-    await this.dataModel.setObject(newObject.id, newObject.values);
+    const node = { id: newObject.id, values: new Set(newObject.values) };
+    await this.dataModel.addNode(node);
+    for (const value of newObject.values) {
+      await this.dataModel.addEdge(newObject.id, value);
+    }
+    for (const value of newObject.values) {
+      const recommendations = await this.dataModel.getRecommendations(value);
+      if (recommendations.length === 0 || !recommendations.some(x => newObject.values.includes(x.value))) {
+        const computedRecs = await this.dataModel.computeRecommendations(value);
+        await this.dataModel.updateRecommendations(value, computedRecs);
+      }
+    }
   }
 
   /**
@@ -24,10 +38,27 @@ export class ClusteringService {
    * Efficiency:
    * - Time Complexity: O(m) where m is the number of values being added.
    * - Space Complexity: O(m) for adding the values.
+   * 
+   * @param {IdType} id - The ID of the existing key.
+   * @param {ValueType[]} values - The values to add.
+   * @returns {Promise<void>}
    */
   async addRange(id: IdType, values: ValueType[]): Promise<void> {
+    let node = await this.dataModel.getNode(id);
+    if (!node) {
+      node = { id, values: new Set() };
+    }
     for (const value of values) {
-      await this.dataModel.addValueToObject(id, value);
+      node.values.add(value);
+      await this.dataModel.addEdge(id, value);
+    }
+    await this.dataModel.addNode(node);
+    for (const value of values) {
+      const recommendations = await this.dataModel.getRecommendations(value);
+      if (recommendations.length === 0) {
+        const computedRecs = await this.dataModel.computeRecommendations(value);
+        await this.dataModel.updateRecommendations(value, computedRecs);
+      }
     }
   }
 
@@ -35,93 +66,63 @@ export class ClusteringService {
    * Finds the most common values associated with a target value.
    * 
    * Efficiency:
-   * - Time Complexity: O(n) where n is the number of values in the cluster containing the target value.
-   * - Space Complexity: O(n) for storing the value counts.
+   * - Time Complexity: O(1) due to direct access to precomputed recommendations.
+   * 
+   * @param {ValueType} targetValue - The target value to find recommendations for.
+   * @param {number} numValuesToReturn - The number of recommendations to return.
+   * @returns {Promise<ValueType[]>} - The list of most common values.
    */
   async findMostCommonValues(targetValue: ValueType, numValuesToReturn: number): Promise<ValueType[]> {
-    const valueToIds = await this.dataModel.getValueToIds();
-    const objects = await this.dataModel.getObjects();
-    return this.findCommonValues(valueToIds, objects, targetValue, numValuesToReturn, targetValue);
+    const recommendations = await this.dataModel.getRecommendations(targetValue);
+    if (!recommendations) {
+      return [];
+    }
+    return recommendations.slice(0, numValuesToReturn).map(rec => rec.value);
   }
 
   /**
    * Finds the most common values for a given ID that the object does not already have.
    * 
    * Efficiency:
-   * - Time Complexity: O(n) where n is the number of values in the cluster containing the target object.
-   * - Space Complexity: O(n) for storing the value counts.
+   * - Time Complexity: O(1) due to direct access to precomputed recommendations.
+   * 
+   * @param {IdType} objectId - The ID of the object to find recommendations for.
+   * @param {number} numValuesToReturn - The number of recommendations to return.
+   * @returns {Promise<ValueType[]>} - The list of most common values not already associated with the object.
    */
   async findMostCommonValuesForId(objectId: IdType, numValuesToReturn: number): Promise<ValueType[]> {
-    const targetObject = await this.dataModel.getObject(objectId);
+    const targetObject = await this.dataModel.getNode(objectId);
     if (!targetObject) {
       return [];
     }
 
-    const targetValues = new Set(targetObject);
-    const valueToIds = await this.dataModel.getValueToIds();
-    const objects = await this.dataModel.getObjects();
-    return this.findCommonValues(valueToIds, objects, targetValues, numValuesToReturn, targetValues);
-  }
-
-  /**
-   * Helper method to find common values.
-   * 
-   * Efficiency:
-   * - Time Complexity: O(n) where n is the number of values in the cluster containing the target.
-   * - Space Complexity: O(n) for storing the value counts.
-   */
-  private findCommonValues(
-    valueToIds: ValueToIdsMap,
-    objects: ObjectsMap,
-    target: IdType | Set<ValueType>,
-    numValuesToReturn: number,
-    excludeValues: IdType | Set<ValueType>
-  ): ValueType[] {
-    const isTargetValue = typeof target === 'string' || typeof target === 'number';
-    const targetValues = isTargetValue ? valueToIds[target] : new Set<IdType>();
-
-    if (!targetValues) {
-      return [];
-    }
-
-    const valueCounts: { [key: string]: number } = {};
-
-    const updateCounts = (values: ValueType[]) => {
-      values.forEach(value => {
-        if (!(excludeValues instanceof Set && excludeValues.has(value)) && value !== excludeValues) {
-          valueCounts[value] = (valueCounts[value] || 0) + 1;
+    const targetValues = new Set(targetObject.values);
+    const recommendations: ValueType[] = [];
+    for (const value of targetObject.values) {
+      const recs = await this.dataModel.getRecommendations(value);
+      if (recs) {
+        for (const rec of recs) {
+          if (!targetValues.has(rec.value) && !recommendations.includes(rec.value)) {
+            recommendations.push(rec.value);
+          }
         }
-      });
-    };
-
-    if (isTargetValue) {
-      valueToIds[target].forEach(id => updateCounts(objects[id]));
-    } else {
-      (target as Set<ValueType>).forEach(value => {
-        valueToIds[value].forEach(id => updateCounts(objects[id]));
-      });
+      }
     }
 
-    const sortedValues = Object.entries(valueCounts)
-      .sort(([, countA], [, countB]) => countB - countA)
-      .map(([value]) => value);
-
-    return sortedValues.slice(0, numValuesToReturn);
+    return recommendations.slice(0, numValuesToReturn);
   }
 
   /**
    * Finds the overall most common values.
    * 
    * Efficiency:
-   * - Time Complexity: O(n log n) where n is the number of unique values.
-   * - Space Complexity: O(n) for storing the sorted values.
+   * - Time Complexity: O(1) for accessing precomputed data.
+   * - Space Complexity: O(k) for storing the top values.
+   * 
+   * @returns {Promise<ValueType[]>} - The list of overall most common values.
    */
-  async findOverallMostCommonValues(limit: number): Promise<ValueType[]> {
-    const valueCounts = await this.dataModel.getValueCounts();
-    const sortedValues = Object.entries(valueCounts)
-      .sort(([, countA], [, countB]) => countB - countA)
-      .map(([value]) => value);
-
-    return sortedValues.slice(0, limit);
+  async findOverallMostCommonValues(): Promise<ValueType[]> {
+    const recommendations = await this.dataModel.getTopOverallRecommendations();
+    return recommendations.map(rec => rec.value);
   }
 }

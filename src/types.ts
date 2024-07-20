@@ -6,23 +6,30 @@ export interface ObjectWithValues {
     values: ValueType[];
 }
 
-export interface ValueToIdsMap {
-    [value: string | number]: Set<IdType>;
+export interface Recommendation {
+    value: ValueType;
+    score: number;
 }
 
-export interface ObjectsMap {
-    [id: string | number]: ValueType[];
+export interface GraphNode {
+    id: IdType;
+    values: Set<ValueType>;
 }
 
-export interface ValueCounts {
-    [value: string | number]: number;
+export interface Graph {
+    [id: string]: GraphNode;
+    [id: number]: GraphNode;
 }
 
 export interface IDataModel {
-  getObject(id: IdType): Promise<ValueType[] | undefined>;
-  setObject(id: IdType, values: ValueType[]): Promise<void>;
-  addValueToObject(id: IdType, value: ValueType): Promise<void>;
-  getObjects(): Promise<ObjectsMap>;
-  getValueToIds(): Promise<ValueToIdsMap>;
-  getValueCounts(): Promise<ValueCounts>;
+  getNode(id: IdType): Promise<GraphNode | undefined>;
+  addNode(node: GraphNode): Promise<void>;
+  addEdge(from: IdType, to: ValueType): Promise<void>;
+  getRecommendations(value: ValueType): Promise<Recommendation[]>;
+  getTopOverallRecommendations(): Promise<Recommendation[]>;
+  updateRecommendations(value: ValueType, recommendations: Recommendation[]): Promise<void>;
+  computeRecommendations(value: ValueType): Promise<Recommendation[]>;
+  getAllNodeIds(): Promise<IdType[]>;
 }
+
+

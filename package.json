@@ -10,12 +10,16 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@types/heap": "^0.2.34",
     "@types/jest": "^29.5.12",
     "jest": "^29.7.0",
     "ts-jest": "^29.1.4",
-    "ts-node": "^10.9.2"
+    "ts-node": "^10.9.2",
+    "typescript": "^5.5.2"
   },
   "dependencies": {
+    "heap": "^0.2.7",
+    "ioredis": "^5.4.1",
     "redis": "^4.6.14"
   }
 }
