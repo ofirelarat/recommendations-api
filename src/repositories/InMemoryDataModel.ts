@@ -82,6 +82,7 @@ export class InMemoryDataModel implements IDataModel {
         this.overallRecommendationsHeap = newHeap;
     }
 
+    /* tslint:disable:forin */
     async computeRecommendations(value: ValueType): Promise<Recommendation[]> {
         const valueCounts: { [key: string]: number } = {};
 
