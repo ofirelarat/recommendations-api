@@ -1,0 +1,107 @@
+/* App.css */
+
+.App {
+  text-align: center;
+}
+
+.App-header {
+  background-color: #282c34;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-around;
+}
+
+input {
+  margin: 5px;
+  padding: 10px;
+  font-size: 16px;
+}
+
+button {
+  margin: 5px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.input-container {
+  display: flex;
+  flex-direction: column;
+
+  margin-block: 16px;
+  padding: 16px;
+  background-color: #3d4657;
+  border-radius: 0 0 16px 16px;
+}
+
+/* React Tags Styles */
+.ReactTags__tags {
+  display: inline-block;
+  margin-block: 16px;
+  padding: 16px;
+  background-color: #3d4657;
+  border-radius: 0 0 16px 16px;
+}
+
+.ReactTags__tagInput {
+  margin-bottom: 10px;
+}
+
+.ReactTags__tagInput input {
+  padding: 8px;
+  font-size: 16px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.ReactTags__selected {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.ReactTags__selected .ReactTags__tag {
+  background: #4492a4;
+  border-radius: 16px;
+  padding: 2px 7px;
+  font-size: 14px;
+  color: white;
+  display: inline-flex;
+  align-items: center;
+}
+
+.ReactTags__selected .ReactTags__tag span {
+  margin-left: 5px;
+  cursor: pointer;
+}
+
+.ReactTags__selected .ReactTags__tag .ReactTags__remove {
+  font-size: 14px;
+  cursor: pointer;
+  border-radius: 16px;
+  border: none;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 5px;
+}
+
+
+.results-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  margin-block: 16px;
+  padding: 16px;
+  text-align: left;
+}

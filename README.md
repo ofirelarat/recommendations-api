@@ -100,6 +100,24 @@ redisClient.disconnect();
 ```
 
 ## Testing
+
+### Sample App
+#### Running the Sample App with Docker Compose
+
+1. Ensure Docker and Docker Compose are installed on your machine.
+2. Navigate to `./sample/` dir
+3. Run the following command to build and start the services:
+```bash
+docker-compose up --build
+```
+This command will build the Docker images for both the frontend and backend, start the services, and set up the necessary dependencies.
+
+Accessing the Sample App
+Backend API: The backend API will be accessible at http://localhost:5000.
+Frontend Application: The frontend application will be accessible at http://localhost:3000.
+
+If you would link to test changes in the src code using the sample app use `npm link` to create local version of the lib and run the backend manually with the new version using build & start commands
+
 ### Running Tests
 To run the tests, use the following command:
 
