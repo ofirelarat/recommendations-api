@@ -9,6 +9,10 @@
     "lint": "tslint -p tsconfig.json -c tslint.json",
     "lint:fix": "tslint -p tsconfig.json -c tslint.json --fix"
   },
+  "files": [
+    "dist/**/*",
+    "src/**/*"
+  ],
   "author": "",
   "license": "ISC",
   "devDependencies": {
