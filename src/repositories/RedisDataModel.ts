@@ -1,4 +1,4 @@
-import { IDataModel, IdType, ValueType, GraphNode, Recommendation } from '../types';
+import { IDataModel, IdType, ValueType, Recommendation, GraphNode } from '../types';
 import Redis from 'ioredis';
 
 export class RedisDataModel implements IDataModel {
@@ -17,7 +17,7 @@ export class RedisDataModel implements IDataModel {
   }
 
   async addNode(node: GraphNode): Promise<void> {
-    await this.redis.sadd(`node:${node.id}:values`, ...node.values);
+    await this.redis.sadd(`node:${node.id}:values`, ...Array.from(node.values));
   }
 
   async addEdge(from: IdType, to: ValueType): Promise<void> {
@@ -49,7 +49,7 @@ export class RedisDataModel implements IDataModel {
   }
 
   private async updateOverallRecommendations(value: ValueType): Promise<void> {
-    await this.redis.zincrby('overallRecommendations', 1, value);
+    await this.redis.zincrby('overallRecommendations', 1, value.toString());
     await this.redis.zremrangebyrank('overallRecommendations', 0, -this.topLimit - 1);
   }
 
@@ -60,7 +60,7 @@ export class RedisDataModel implements IDataModel {
     for (const key of keys) {
       const nodeValues = await this.redis.smembers(key);
       if (nodeValues.includes(value.toString())) {
-        nodeValues.forEach(val => {
+        nodeValues.forEach((val: any) => {
           if (val !== value.toString()) {
             valueCounts[val] = (valueCounts[val] || 0) + 1;
           }
@@ -71,11 +71,5 @@ export class RedisDataModel implements IDataModel {
     return Object.entries(valueCounts)
       .map(([val, score]) => ({ value: val as ValueType, score }))
       .sort((a, b) => b.score - a.score);
-  }
-
-
-  async getAllNodeIds(): Promise<IdType[]> {
-    const keys = await this.redis.keys('node:*:values');
-    return keys.map(key => key.split(':')[1]);
   }
 }
