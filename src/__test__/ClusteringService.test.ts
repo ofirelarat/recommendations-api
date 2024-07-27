@@ -20,23 +20,27 @@ describe('ClusteringService with InMemoryDataModel', () => {
 
   test('should find most common values associated with a target value', async () => {
     const commonValues = await clusteringService.findMostCommonValues('a', 2);
-    expect(commonValues).toEqual(expect.arrayContaining(['b', 'c']));
+    const commonValueNames = commonValues.map(rec => rec.value);
+    expect(commonValueNames).toEqual(expect.arrayContaining(['b', 'c']));
   });
 
   test('should find most common values for a given ID that the object does not already have', async () => {
     const commonValuesForId = await clusteringService.findMostCommonValuesForId('1', 2);
-    expect(commonValuesForId).toEqual(expect.arrayContaining(['d', 'f']));
+    const commonValueNames = commonValuesForId.map(rec => rec.value);
+    expect(commonValueNames).toEqual(expect.arrayContaining(['d', 'f']));
   });
 
   test('should find overall most common values', async () => {
     const overallCommonValues = await clusteringService.findOverallMostCommonValues();
-    expect(overallCommonValues).toEqual(expect.arrayContaining(['a', 'b', 'c']));
+    const overallCommonValueNames = overallCommonValues.map(rec => rec.value);
+    expect(overallCommonValueNames).toEqual(expect.arrayContaining(['a', 'b', 'c']));
   });
 
   test('should add a new object and update mappings correctly', async () => {
     await clusteringService.addObject({ id: '6', values: ['a', 'i'] });
     const commonValues = await clusteringService.findMostCommonValues('a', 5);
-    expect(commonValues).toEqual(expect.arrayContaining(['b', 'c', 'f', 'i']));
+    const commonValueNames = commonValues.map(rec => rec.value);
+    expect(commonValueNames).toEqual(expect.arrayContaining(['b', 'c', 'f', 'i']));
   });
 
   /* tslint:disable:no-string-literal  */

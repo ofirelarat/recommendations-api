@@ -2,23 +2,23 @@ export type IdType = string | number;
 export type ValueType = string | number;
 
 export interface ObjectWithValues {
-    id: IdType;
-    values: ValueType[];
+  id: IdType;
+  values: ValueType[];
 }
 
 export interface Recommendation {
-    value: ValueType;
-    score: number;
+  value: ValueType;
+  score: number;
 }
 
 export interface GraphNode {
-    id: IdType;
-    values: Set<ValueType>;
+  id: IdType;
+  values: Set<ValueType>;
 }
 
 export interface Graph {
-    [id: string]: GraphNode;
-    [id: number]: GraphNode;
+  [id: string]: GraphNode;
+  [id: number]: GraphNode;
 }
 
 export interface IDataModel {
@@ -29,7 +29,7 @@ export interface IDataModel {
   getTopOverallRecommendations(): Promise<Recommendation[]>;
   updateRecommendations(value: ValueType, recommendations: Recommendation[]): Promise<void>;
   computeRecommendations(value: ValueType): Promise<Recommendation[]>;
-  getAllNodeIds(): Promise<IdType[]>;
 }
+
 
 
