@@ -1,14 +1,15 @@
 {
   "name": "recommendations-api",
   "version": "0.0.1",
-  "description": "A clustering service for managing objects and their associated values, with in-memory and Redis data models.",
+  "description": "Recommendations clustering service for managing objects and their associated values, with in-memory and Redis data models.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsc",
     "test": "jest",
     "lint": "tslint -p tsconfig.json -c tslint.json",
-    "lint:fix": "tslint -p tsconfig.json -c tslint.json --fix"
+    "lint:fix": "tslint -p tsconfig.json -c tslint.json --fix",
+    "prepublishOnly": "npm run lint && npm run test && npm run build"
   },
   "files": [
     "dist/**/*",

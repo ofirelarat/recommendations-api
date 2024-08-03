@@ -1,4 +1,4 @@
-# Clustering Service with In-Memory and Redis Data Models
+# Recommendations Clustering Service with In-Memory and Redis Data Models
 
 ## Overview
 
