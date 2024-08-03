@@ -1,8 +1,9 @@
 {
   "name": "recommendations-api",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "version": "0.0.1",
+  "description": "A clustering service for managing objects and their associated values, with in-memory and Redis data models.",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsc",
     "test": "jest",
@@ -13,8 +14,28 @@
     "dist/**/*",
     "src/**/*"
   ],
-  "author": "",
-  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ofirelarat/recommendations-api.git"
+  },
+  "keywords": [
+    "clustering",
+    "recommendations",
+    "typescript",
+    "redis",
+    "in-memory"
+  ],
+  "author": "Ofir Elarat",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ofirelarat/recommendations-api/issues"
+  },
+  "homepage": "https://github.com/ofirelarat/recommendations-api#readme",
+  "dependencies": {
+    "heap": "^0.2.7",
+    "ioredis": "^5.4.1",
+    "redis": "^4.6.14"
+  },
   "devDependencies": {
     "@types/heap": "^0.2.34",
     "@types/jest": "^29.5.12",
@@ -24,10 +45,5 @@
     "tslint": "^6.1.3",
     "tslint-config-prettier": "^1.18.0",
     "typescript": "^5.5.3"
-  },
-  "dependencies": {
-    "heap": "^0.2.7",
-    "ioredis": "^5.4.1",
-    "redis": "^4.6.14"
   }
 }

@@ -1,9 +1,7 @@
 import express from 'express';
 import bodyParser from 'body-parser';
 import cors from 'cors';
-import path from 'path';
-import { InMemoryDataModel } from 'recommendations-api/dist/repositories/InMemoryDataModel';
-import { ClusteringService } from 'recommendations-api/dist/ClusteringService';
+import { ClusteringService, InMemoryDataModel } from 'recommendations-api'
 
 const app = express();
 const port = 5000;
